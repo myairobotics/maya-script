@@ -1,5 +1,3 @@
-Here's an updated `README.md` that reflects the fact that users do not need to add an additional button, as the script includes a floating button:
-
 # Maya Widget
 
 The Maya Widget is a customizable modal widget that you can easily integrate into your website by adding a single script. It provides a sleek, responsive design using Tailwind CSS.
