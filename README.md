@@ -1,6 +1,5 @@
 Here's an updated `README.md` that reflects the fact that users do not need to add an additional button, as the script includes a floating button:
 
-```markdown
 # Maya Widget
 
 The Maya Widget is a customizable modal widget that you can easily integrate into your website by adding a single script. It provides a sleek, responsive design using Tailwind CSS.
@@ -24,8 +23,8 @@ To integrate the Maya Widget into your website, follow these steps:
 
 Add the following script tag to the `<body>` section of your HTML file:
 
-```html
-  <script src="https://vin-jex.github.io/maya-script/maya.js"></script>
+```javascript
+<script src="https://vin-jex.github.io/maya-script/maya.js" />
 ```
 
 ### Full Example
@@ -102,3 +101,4 @@ The Maya Widget is open-source and available under the MIT License. You are free
 ---
 
 By following these instructions, you can easily integrate the Maya Widget into your website and customize it to fit your needs. If you encounter any issues or have questions, please feel free to reach out for support.
+```
