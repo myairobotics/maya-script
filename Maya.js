@@ -290,7 +290,7 @@
   document.body.appendChild(scriptNoModule);
 
   document.addEventListener("DOMContentLoaded", function () {
-    const openModalButton = document.getElementById("open-modal");
+    const openModalButton = document.querySelector(".btnOpen");
     const widgetContainer = document.getElementById("maya-widget");
     const closeBtn = document.getElementById("closeBtn");
 
