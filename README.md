@@ -101,4 +101,3 @@ The Maya Widget is open-source and available under the MIT License. You are free
 ---
 
 By following these instructions, you can easily integrate the Maya Widget into your website and customize it to fit your needs. If you encounter any issues or have questions, please feel free to reach out for support.
-```
