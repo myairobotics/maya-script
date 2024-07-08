@@ -23,6 +23,42 @@
         --color-light-ring: rgba(0, 80, 255, 0.2);
       }
 
+      .btnOpen {
+        background: var(--color-blue);
+        color: var(--color-white);
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        padding: 1rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: fixed;
+        bottom: 4rem;
+        right: 4rem;
+        cursor: pointer;
+        z-index: 10000;
+        box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+        text-align: center;
+        line-height: 60px;
+        font-size: 24px;
+        transition: box-shadow 0.3s ease;
+      }
+
+      .btnOpen:hover {
+        box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.3);
+      }
+
+      .btnOpen img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+
+      .hidden {
+        display: none !important;
+      }
+
       .modal-container {
         position: fixed;
         top: 0;
@@ -193,9 +229,9 @@
       }
     </style>
     <div id="app" class="p-4">
-      <button id="open-modal"
-        style="background-color: #3B82F6; color: #FFFFFF; padding-left: 1rem; padding-right: 1rem; padding-top: 0.5rem; padding-bottom: 0.5rem; border-radius: 0.25rem;">Open
-        Maya Widget</button>
+      <button id="app" class="btnOpen" id="open-modal">
+        <img src="/maya.png" alt="Maya" />
+      </button>
     </div>
     <div id="maya-widget" style="display:none; position: fixed; top: 0; right: 0; bottom: 0; left: 0; background-color: rgba(107, 114, 128, 0.75); transition: opacity 0.2s; backdrop-filter: blur(4px);">
       <div class="modal-container">
@@ -261,8 +297,10 @@
     function handlePreview() {
       if (widgetContainer.style.display === "none") {
         widgetContainer.style.display = "block";
+        openModalButton.classList.add("hidden");
       } else {
         widgetContainer.style.display = "none";
+        openModalButton.classList.remove("hidden");
       }
     }
 

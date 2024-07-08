@@ -21,6 +21,42 @@
         --color-light-ring: rgba(0, 80, 255, 0.2);
       }
 
+      .btnOpen {
+        background: var(--color-blue);
+        color: var(--color-white);
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        padding: 1rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: fixed;
+        bottom: 4rem;
+        right: 4rem;
+        cursor: pointer;
+        z-index: 10000;
+        box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+        text-align: center;
+        line-height: 60px;
+        font-size: 24px;
+        transition: box-shadow 0.3s ease;
+      }
+
+      .btnOpen:hover {
+        box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.3);
+      }
+
+      .btnOpen img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+
+      .hidden {
+        display: none !important;
+      }
+
       .modal-container {
         position: fixed;
         top: 0;
@@ -194,10 +230,15 @@
 
   <body>
     <div id="app" class="p-4">
-      <button id="open-modal"
-        style="background-color: #3B82F6; color: #FFFFFF; padding-left: 1rem; padding-right: 1rem; padding-top: 0.5rem; padding-bottom: 0.5rem; border-radius: 0.25rem;">Open
-        Maya Widget</button>
+      <button id="app" class="btnOpen">
+        <img src="/maya.png" alt="Maya" id="open-modal" />
+      </button>
     </div>
+
+    <a href="/lo.html"
+      style="color: darkslategrey; font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif; font-size: smaller; text-decoration: underline; text-align: center; display: flex; justify-content: center;">
+      Empty Page that only contains the script for testing
+    </a>
 
     <script src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.esm.js" type="module"></script>
     <script src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.js" nomodule></script>
@@ -205,14 +246,19 @@
     <script>
       document.addEventListener('DOMContentLoaded', function () {
         const app = document.getElementById('app');
-        const openModalButton = document.getElementById('open-modal');
+        const openModalButton = document.querySelector('.btnOpen');
+        let modalOpen = false;
 
         function handlePreview() {
           const widget = document.getElementById('maya-widget');
           if (widget) {
             widget.remove();
+            modalOpen = false;
+            openModalButton.classList.remove('hidden');
           } else {
             createWidget();
+            modalOpen = true;
+            openModalButton.classList.add('hidden');
           }
         }
 
@@ -225,44 +271,44 @@
           const uri = "http://localhost:3000";
           const content = `
             <div class="modal-container">
-              <div class="modal-center">
-                <div class="modal-content" onclick="event.stopPropagation();">
-                  <nav class="modal-nav">
-                    <div class="nav-left">
-                      <img src="${uri}/assets/main.jpeg" alt="Maya" class="nav-img">
-                      <div class="nav-title">
-                        Maya AI
-                        <span class="nav-status"></span>
-                      </div>
-                    </div>
-                    <ion-icon name="close" id="closeBtn" class="nav-icon"></ion-icon>
-                  </nav>
+                <div class="modal-center">
+                    <div class="modal-content" onclick="event.stopPropagation();">
+                        <nav class="modal-nav">
+                            <div class="nav-left">
+                                <img src="${uri}/assets/main.jpeg" alt="Maya" class="nav-img">
+                                <div class="nav-title">
+                                    Maya AI
+                                    <span class="nav-status"></span>
+                                </div>
+                            </div>
+                            <ion-icon name="close" id="closeBtn" class="nav-icon"></ion-icon>
+                        </nav>
 
-                  <div class="modal-body">
-                    <div class="modal-image">
-                      <img src="${uri}/assets/main.jpeg" alt="Maya" class="body-img">
-                    </div>
-                    <div class="modal-messages">
-                      <div class="message message-left">
-                        <img src="${uri}/assets/main.jpeg" alt="Maya" class="message-img">
-                        <p class="message-text">I would be glad to help Lorem ipsum dolor sit amet consectetur adipisicing elit. Enim dolore sint doloremque pariatur neque! Optio itaque totam dolorem veritatis aperiam.</p>
-                      </div>
-                      <div class="message message-right">
-                        <img src="${uri}/assets/main.jpeg" alt="Maya" class="message-img">
-                        <p class="message-text message-text-right">I would be glad to help Lorem ipsum dolor sit amet consectetur adipisicing elit. Enim dolore sint doloremque pariatur neque! Optio itaque totam dolorem veritatis aperiam.</p>
-                      </div>
-                    </div>
-                  </div>
+                        <div class="modal-body">
+                            <div class="modal-image">
+                                <img src="${uri}/assets/main.jpeg" alt="Maya" class="body-img">
+                            </div>
+                            <div class="modal-messages">
+                                <div class="message message-left">
+                                    <img src="${uri}/assets/main.jpeg" alt="Maya" class="message-img">
+                                    <p class="message-text">I would be glad to help Lorem ipsum dolor sit amet consectetur adipisicing elit. Enim dolore sint doloremque pariatur neque! Optio itaque totam dolorem veritatis aperiam.</p>
+                                </div>
+                                <div class="message message-right">
+                                    <img src="${uri}/assets/main.jpeg" alt="Maya" class="message-img">
+                                    <p class="message-text message-text-right">I would be glad to help Lorem ipsum dolor sit amet consectetur adipisicing elit. Enim dolore sint doloremque pariatur neque! Optio itaque totam dolorem veritatis aperiam.</p>
+                                </div>
+                            </div>
+                        </div>
 
-                  <div class="modal-footer">
-                    <ion-icon name="mic" class="footer-icon"></ion-icon>
-                    <input type="text" name="message" class="footer-input" placeholder="Aa">
-                    <ion-icon name="send" class="footer-icon"></ion-icon>
-                  </div>
+                        <div class="modal-footer">
+                            <ion-icon name="mic" class="footer-icon"></ion-icon>
+                            <input type="text" name="message" class="footer-input" placeholder="Aa">
+                            <ion-icon name="send" class="footer-icon"></ion-icon>
+                        </div>
+                    </div>
                 </div>
-              </div>
             </div>
-      `;
+        `;
 
           widgetContainer.innerHTML = content;
           app.appendChild(widgetContainer);
@@ -276,8 +322,8 @@
 
         openModalButton.addEventListener('click', handlePreview);
       });
-    </script>
 
+    </script>
   </body>
 
 </html>
