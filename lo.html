@@ -5,13 +5,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Example Website</title>
-
   </head>
 
   <body>
     <!-- Include Your Widget Script -->
-    <script src="maya.js"></script>
-
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        localStorage.setItem("data", JSON.stringify({ token: "ba63d7ca9850048459d47397b29cfd05ada016e7", bucket: 9 }));
+      });
+    </script>
+    <script src="https://vin-jex.github.io/maya-script/maya.js"></script>
   </body>
 
 </html>
