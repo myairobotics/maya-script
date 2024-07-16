@@ -230,7 +230,7 @@
     </style>
     <div id="app" class="p-4">
       <button class="btnOpen" id="open-modal">
-        <img src="/maya.png" alt="Maya" />
+        <img src="https://res.cloudinary.com/cctlf-org/image/upload/v1721161715/maya-icon_hnxje6.png" alt="Maya" />
       </button>
     </div>
     <div id="maya-widget" style="display:none; position: fixed; top: 0; right: 0; bottom: 0; left: 0; background-color: rgba(107, 114, 128, 0.75); transition: opacity 0.2s; backdrop-filter: blur(4px);">
@@ -239,7 +239,7 @@
           <div class="modal-content" onclick="event.stopPropagation();">
             <nav class="modal-nav">
               <div class="nav-left">
-                <img src="https://via.placeholder.com/40" alt="Maya" class="nav-img">
+                <img src="https://app.myaisells.com/assets/mayaframe.jpeg" alt="Maya" class="nav-img">
                 <div class="nav-title">
                   Maya AI
                   <span class="nav-status"></span>
@@ -329,6 +329,7 @@
     let recognition;
     let pauseTimeoutRef = null;
     const url = "https://mayaaibe.azurewebsites.net/api";
+    const mayaImg = "https://app.myaisells.com/assets/mayaframe.jpeg";
 
     // const {
     //   token: {
@@ -395,7 +396,7 @@
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            source_url: "https://app.myaisells.com/assets/mayaframe.jpeg",
+            source_url: mayaImg,
           }),
         });
         const data = await response.json();
@@ -680,7 +681,7 @@
     async function sendMessage(msg) {
       try {
         let chat_id = localStorage.getItem("chat_id");
-        if (!chat_id) {
+        if (!chat_id || !chat_id === undefined || !chat_id.length) {
           await createMessageSession();
           chat_id = localStorage.getItem("chat_id");
         }
@@ -756,7 +757,10 @@
 
         const img = document.createElement("img");
         img.classList.add("message-img");
-        img.src = "https://via.placeholder.com/24";
+
+        if (message.by === "MA")
+          img.src = "https://app.myaisells.com/assets/mayaframe.jpeg";
+        else img.src = "https://app.myaisells.com/assets/user.png";
 
         const text = document.createElement("p");
         text.classList.add("message-text");
