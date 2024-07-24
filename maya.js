@@ -79,7 +79,7 @@
       }
 
       .modal-content {
-        height: 700px;
+        height: 500px;
         width: 400px;
         display: flex;
         flex-direction: column;
@@ -92,7 +92,7 @@
       }
 
       .modal-nav {
-        padding: 0.75rem 1rem;
+        padding: 0.45rem .8rem;
         background-color: var(--color-white);
         display: flex;
         align-items: center;
@@ -104,12 +104,12 @@
       .nav-left {
         display: flex;
         align-items: center;
-        gap: 0.75rem;
+        gap: 0.45rem;
       }
 
       .nav-img {
-        width: 2.5rem;
-        height: 2.5rem;
+        width: 2rem;
+        height: 2rem;
         object-fit: cover;
         border: 0.125rem solid var(--color-blue);
         border-radius: 50%;
@@ -119,7 +119,7 @@
         display: flex;
         align-items: center;
         color: var(--color-dark);
-        font-size: 1rem;
+        font-size: .8rem;
         font-family: 'Rubik', sans-serif;
         font-weight: 500;
       }
@@ -147,7 +147,7 @@
       }
 
       .modal-image {
-        height: 17rem;
+        height: 15rem;
         position: static;
       }
 
@@ -331,24 +331,6 @@
     const url = "https://mayaaibe.azurewebsites.net/api";
     const mayaImg = "https://app.myaisells.com/assets/mayaframe.jpeg";
 
-    // const {
-    //   token: {
-    //     token,
-    //     is_active,
-    //     profile_completed,
-    //     personal_profile_completed,
-    //   },
-    //   bucket,
-    // } = {
-    //   token: {
-    //     token: "ba63d7ca9850048459d47397b29cfd05ada016e7",
-    //     is_active: true,
-    //     profile_completed: true,
-    //     personal_profile_completed: true,
-    //   },
-    //   bucket: { id: 2, name: "Vincent" },
-    // };
-
     const token = JSON.parse(localStorage.getItem("data"))?.token;
     const bucket = JSON.parse(localStorage.getItem("data"))?.bucket;
 
@@ -375,7 +357,6 @@
         placeholderImage.style.display = "block";
         streamVideoElement.style.display = "none";
 
-        console.log("streamVideoElement sfver: " + streamVideoElement);
 
         if (streamVideoElement.srcObject) {
           streamVideoElement.srcObject.getTracks().forEach((track) => {
@@ -641,11 +622,6 @@
       try {
         const response = await fetch(
           `${url}/bucket/message-maaya-embedings/${bucket}/`
-          // {
-          //   headers: {
-          //     Authorization: `Token ${token}`,
-          //   },
-          // }
         );
         const data = await response.json();
         oldMessages = data.results.reverse();
@@ -692,6 +668,9 @@
         messageInput.value = "";
 
         // Display user message immediately
+
+        oldMessages.length === 2 && oldMessages.shift();
+
         oldMessages.push(userMessage);
         updateMessageContainer();
 
@@ -725,10 +704,13 @@
               startListening();
             }
             // Update the last message in oldMessages with the received response
+            oldMessages.length === 2 && oldMessages.shift();
+
             oldMessages.push({
               by: "MA", // Maya
               message: streamMessage,
             });
+
             inputText = streamMessage;
             updateMessageContainer();
           } else {
@@ -743,6 +725,16 @@
         };
       } catch (error) {
         console.log(error);
+      }
+    }
+
+    // Truncate Text
+    function truncateText(text, textLength) {
+      const textSize = text.split(" ").length;
+      if (textSize > textLength) {
+        return text.split(" ").slice(0, textLength).join(" ") + "...";
+      } else {
+        return text;
       }
     }
 
@@ -767,7 +759,8 @@
         if (message.by === "OW") {
           text.classList.add("message-text-right");
         }
-        text.innerText = message.message;
+        text.innerText = truncateText(message.message, 12)
+        // message.message;
 
         messageElement.appendChild(img);
         messageElement.appendChild(text);
@@ -816,7 +809,7 @@
       }
     }
 
-    const startSpeech = () => {
+    const startSpeech = (welcomeText) => {
       if (inputText !== "" && oldMessages[oldMessages.length - 1].by === "MY") {
         console.log("Stream from Update message");
         createStream().then(() => {
@@ -873,6 +866,15 @@
         }, 200);
       };
     }
+
+    (function () {
+      handlePreview();
+      startStream();
+      createStream().then(() => {
+        startStream("Hello there!");
+        startTimer();
+      });
+    })();
 
     openModalButton.addEventListener("click", handlePreview);
     closeBtn.addEventListener("click", handlePreview);
