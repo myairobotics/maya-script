@@ -79,7 +79,7 @@
       }
 
       .modal-content {
-        height: 500px;
+        height: 470px;
         width: 400px;
         display: flex;
         flex-direction: column;
@@ -357,7 +357,6 @@
         placeholderImage.style.display = "block";
         streamVideoElement.style.display = "none";
 
-
         if (streamVideoElement.srcObject) {
           streamVideoElement.srcObject.getTracks().forEach((track) => {
             track.stop();
@@ -389,7 +388,6 @@
         createPeerConnection();
       } catch (error) {
         console.error("Error creating stream:", error);
-        alert("Failed to create stream, see console for details");
       }
     }
 
@@ -703,13 +701,18 @@
             if (mic === "on") {
               startListening();
             }
-            // Update the last message in oldMessages with the received response
-            oldMessages.length === 2 && oldMessages.shift();
 
-            oldMessages.push({
-              by: "MA", // Maya
-              message: streamMessage,
-            });
+            setTimeout(() => {
+              // Update the last message in oldMessages with the received response
+              oldMessages.length === 2 && oldMessages.shift();
+
+              oldMessages.push({
+                by: "MA", // Maya
+                message: streamMessage,
+              });
+
+              updateMessageContainer();
+            }, 5000);
 
             inputText = streamMessage;
             updateMessageContainer();
@@ -759,7 +762,7 @@
         if (message.by === "OW") {
           text.classList.add("message-text-right");
         }
-        text.innerText = truncateText(message.message, 12)
+        text.innerText = truncateText(message.message, 10);
         // message.message;
 
         messageElement.appendChild(img);
@@ -867,14 +870,14 @@
       };
     }
 
-    (function () {
-      handlePreview();
-      startStream();
-      createStream().then(() => {
-        startStream("Hello there!");
-        startTimer();
-      });
-    })();
+    // (function () {
+    //   handlePreview();
+    //   startStream();
+    //   createStream().then(() => {
+    //     startStream("Hello there!");
+    //     startTimer();
+    //   });
+    // })();
 
     openModalButton.addEventListener("click", handlePreview);
     closeBtn.addEventListener("click", handlePreview);
@@ -894,6 +897,7 @@
       startListening();
     }
 
+    handlePreview();
     initialSetup();
 
     // Event listeners for opening and closing modal
