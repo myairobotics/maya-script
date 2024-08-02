@@ -317,6 +317,7 @@
     const mayaImg = "https://app.myaisells.com/assets/mayaframe.png";
 
     const token = JSON.parse(localStorage.getItem("data"))?.token;
+    const token2 = "mLF8*\$4LwRfEzDYyDi!_0w";
     const bucket = JSON.parse(localStorage.getItem("data"))?.bucket;
 
     function onVideoStatusChange(videoIsPlaying, stream) {
@@ -719,8 +720,6 @@
         ""
       );
 
-      console.log("Combined message: " + JSON.stringify(combinedMessage));
-
       return combinedMessage;
     };
 
@@ -744,7 +743,7 @@
           {
             method: "POST",
             headers: {
-              Authorization: `Bearer ${token}`,
+              Authorization: `Bearer ${token2}`,
               "Content-Type": "application/json",
             },
             body: JSON.stringify(payload),
