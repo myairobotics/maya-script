@@ -1,0 +1,22 @@
+{
+  "liveServer.settings.CustomBrowser": "chrome",
+  "liveServer.settings.host": "localhost",
+  "liveServer.settings.port": 3001,
+  "surround.with.element": {
+
+    "label": "<element></element>",
+    "description": "<element>...</element>",
+    "disabled": false,
+    "snippet": "<${1}$2>$TM_SELECTED_TEXT</$1>$0",
+    "languageIds": [
+      "html",
+      "typescriptreact",
+      "javascriptreact",
+      "jsx",
+      "markdown"
+    ]
+  },
+  "json.schemas": [
+
+  ]
+}
