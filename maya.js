@@ -9,9 +9,6 @@
   // Creation of modal HTML
   var modalHtml = `
     <style>
-      .backdrop-blur-sm {
-        backdrop-filter: blur(5px);
-      }
 
       :root {
         --color-blue: #0050ff;
@@ -58,27 +55,14 @@
       .hidden {
         display: none !important;
       }
-
-      .modal-container {
-        position: fixed;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        overflow-y: auto;
-      }
-
-      .modal-center {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        min-height: 100vh;
-        width: 100%;
-        text-align: center;
-        position: relative;
+      
+      .model-container {
+        background: red;
       }
 
       .modal-content {
+        position: relative;
+        overflow-y: auto;
         height: 470px;
         width: 400px;
         display: flex;
@@ -87,6 +71,7 @@
         bottom: 1rem;
         right: 1rem;
         background-color: var(--color-white);
+        box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.4), 0 4px 6px -4px rgb(0 0 0 / 0.5);
         overflow: hidden;
         border-radius: 1rem;
       }
@@ -157,7 +142,6 @@
         object-fit: cover;
         object-position: right top;
         border-radius: 0.5rem;
-        border: 1px solid var(--color-light-border);
       }
 
       .modal-messages {
@@ -229,17 +213,16 @@
       }
     </style>
     <div id="app" class="p-4">
-      <button class="btnOpen" id="open-modal">
+      <button class="btnOpen hidden" id="open-modal">
         <img src="https://res.cloudinary.com/cctlf-org/image/upload/v1721161715/maya-icon_hnxje6.png" alt="Maya" />
       </button>
     </div>
-    <div id="maya-widget" style="display:none; position: fixed; top: 0; right: 0; bottom: 0; left: 0; background-color: rgba(107, 114, 128, 0.75); transition: opacity 0.2s; backdrop-filter: blur(4px);">
       <div class="modal-container">
         <div class="modal-center">
           <div class="modal-content" onclick="event.stopPropagation();">
             <nav class="modal-nav">
               <div class="nav-left">
-                <img src="https://app.myaisells.com/assets/mayaframe.jpeg" alt="Maya" class="nav-img">
+                <img src="https://app.myaisells.com/assets/mayaframe.png" alt="Maya" class="nav-img">
                 <div class="nav-title">
                   Maya AI
                   <span class="nav-status"></span>
@@ -258,7 +241,7 @@
                 <img
                   id='placeholderImage'
                   class='w-full h-full rounded-lg modal-video body-img'
-                  src='https://app.myaisells.com/assets/mayaframe.jpeg'
+                  src='https://app.myaisells.com/assets/mayaframe.png'
                   alt='Video Placeholder'
                   style='display: none;'
                 />
@@ -275,7 +258,7 @@
           </div>
         </div>
       </div>
-    </div>
+
 
   `;
 
@@ -302,7 +285,7 @@
 
     // Chat Maya States
     const openModalButton = document.querySelector(".btnOpen");
-    const widgetContainer = document.getElementById("maya-widget");
+    const widgetContainer = document.querySelector(".modal-container");
     const closeBtn = document.getElementById("closeBtn");
     const sendBtn = document.getElementById("sendBtn");
     const messageInput = document.getElementById("messageInput");
@@ -328,8 +311,10 @@
     let isListening = false;
     let recognition;
     let pauseTimeoutRef = null;
-    const url = "https://mayaaibe.azurewebsites.net/api";
-    const mayaImg = "https://app.myaisells.com/assets/mayaframe.jpeg";
+    let chat_id;
+    // const url = "https://mayaaibe.azurewebsites.net/api";
+    const url = "https://maya-node-ai-sales-backend.onrender.com/api/v1";
+    const mayaImg = "https://app.myaisells.com/assets/mayaframe.png";
 
     const token = JSON.parse(localStorage.getItem("data"))?.token;
     const bucket = JSON.parse(localStorage.getItem("data"))?.bucket;
@@ -619,113 +604,184 @@
     async function getMessages() {
       try {
         const response = await fetch(
-          `${url}/bucket/message-maaya-embedings/${bucket}/`
+          `${url}/ai/buckets/${bucket}/conversations/history`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+              "Access-Control-Allow-Origin": "*",
+            },
+          }
         );
+
         const data = await response.json();
-        oldMessages = data.results.reverse();
+
+        chat_id = data.chat_id ? data.chat_id : null;
+        oldMessages = data?.messages.reverse();
         updateMessageContainer();
       } catch (error) {
         console.log(error);
       }
     }
 
-    // Create message session
-    const createMessageSession = async () => {
-      try {
-        const resp = await fetch(`${url}/chat-session/`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            email: "vincentcode0@gmail.com",
-            bucket: bucket,
-            name: "Vincent",
-          }),
-        });
+    //   async function sendMessage(msg) {
+    //     try {
+    //       let userMessage = { by: "OW", message: msg };
 
-        const data = await resp.json();
-        localStorage.setItem("chat_id", data.id);
-      } catch (error) {
-        // toast.error("Error while creating session");
-        console.log(error);
-      }
+    //       // Clear input state
+    //       messageInput.value = "";
+
+    //       // Display user message immediately
+    //       oldMessages.length === 2 && oldMessages.shift();
+
+    //       oldMessages.push(userMessage);
+    //       updateMessageContainer();
+
+    //       const payload = chat_id
+    //         ? { input: msg, chat_id }
+    //         : { input: msg };
+
+    //       const response = await fetch(
+    //         `${url}/ai/buckets/${bucket}/conversations`,
+    //         {
+    //           method: "POST",
+    //           headers: {
+    //             Authorization: `Bearer ${token}`,
+    //             "Content-Type": "application/json",
+    //           },
+    //           body: JSON.stringify(payload),
+    //         }
+    //       );
+
+    //       const data = await response.json();
+    //       console.log("Data: ", data)
+
+    //       const eventSource = new EventSource(
+    //         `${url}/bucket/sse_customer/${data.id}/`
+    //       );
+
+    //       let streamMessage = "";
+    //       eventSource.onmessage = function (event) {
+    //         const msg = JSON.parse(event.data);
+
+    //         if (
+    //           msg.data === "BMASTEREXECFINISHED" ||
+    //           msg.data === "BMASTEREXECERROR"
+    //         ) {
+    //           eventSource.close();
+    //           let mic = localStorage.getItem("mic");
+    //           console.log(mic);
+    //           if (mic === "on") {
+    //             startListening();
+    //           }
+
+    //           setTimeout(() => {
+    //             // Update the last message in oldMessages with the received response
+    //             oldMessages.length === 2 && oldMessages.shift();
+
+    //             oldMessages.push({
+    //               by: "MA", // Maya
+    //               message: streamMessage,
+    //             });
+
+    //             updateMessageContainer();
+    //           }, 5000);
+
+    //           inputText = streamMessage;
+    //           updateMessageContainer();
+    //         } else {
+    //           streamMessage += msg.data;
+    //           oldMessages[oldMessages.length - 1] = {
+    //             by: "OW",
+    //             // Keep the original user message
+    //             message: userMessage.message,
+    //           };
+    //           updateMessageContainer();
+    //         }
+    //       };
+    //     } catch (error) {
+    //       console.log(error);
+    //     }
+    //   }
+
+    const combineStreamingMessages = (data) => {
+      // Split the raw string into individual JSON strings
+      const rawMessages = data.match(/(\{[^}]+\})/g);
+
+      if (!rawMessages) return "";
+
+      // Parse each JSON string into an object
+      const messages = rawMessages.map((message) => JSON.parse(message));
+
+      // Combine the content fields
+      const combinedMessage = messages.reduce(
+        (acc, msg) => acc + msg.content,
+        ""
+      );
+
+      console.log("Combined message: " + JSON.stringify(combinedMessage));
+
+      return combinedMessage;
     };
 
     async function sendMessage(msg) {
       try {
-        let chat_id = localStorage.getItem("chat_id");
-        if (!chat_id || !chat_id === undefined || !chat_id.length) {
-          await createMessageSession();
-          chat_id = localStorage.getItem("chat_id");
-        }
-
         let userMessage = { by: "OW", message: msg };
 
         // Clear input state
         messageInput.value = "";
 
         // Display user message immediately
-
         oldMessages.length === 2 && oldMessages.shift();
 
         oldMessages.push(userMessage);
         updateMessageContainer();
 
-        const response = await fetch(`${url}/message-maaya-embedings/`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            // Authorization: `Token ${token}`,
-          },
-          body: JSON.stringify({ message: msg, chat: chat_id }),
-        });
+        const payload = chat_id ? { input: msg, chat_id } : { input: msg };
 
-        const data = await response.json();
-
-        const eventSource = new EventSource(
-          `${url}/bucket/sse_customer/${data.id}/`
+        const response = await fetch(
+          `${url}/ai/buckets/${bucket}/conversations`,
+          {
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(payload),
+          }
         );
 
-        let streamMessage = "";
-        eventSource.onmessage = function (event) {
-          const msg = JSON.parse(event.data);
+        let data;
+        const contentType = response.headers.get("Content-Type");
 
-          if (
-            msg.data === "BMASTEREXECFINISHED" ||
-            msg.data === "BMASTEREXECERROR"
-          ) {
-            eventSource.close();
-            let mic = localStorage.getItem("mic");
-            console.log(mic);
-            if (mic === "on") {
-              startListening();
-            }
+        if (contentType && contentType.includes("application/json")) {
+          data = await response.json();
+        } else {
+          // Handle non-JSON response (e.g., plain text)
+          data = await response.text();
+        }
+        const streamMessage = combineStreamingMessages(data);
 
-            setTimeout(() => {
-              // Update the last message in oldMessages with the received response
-              oldMessages.length === 2 && oldMessages.shift();
+        let mic = localStorage.getItem("mic");
 
-              oldMessages.push({
-                by: "MA", // Maya
-                message: streamMessage,
-              });
+        if (mic === "on") {
+          startListening();
+        }
 
-              updateMessageContainer();
-            }, 5000);
+        setTimeout(() => {
+          // Update the last message in oldMessages with the received response
+          oldMessages.length === 2 && oldMessages.shift();
 
-            inputText = streamMessage;
-            updateMessageContainer();
-          } else {
-            streamMessage += msg.data;
-            oldMessages[oldMessages.length - 1] = {
-              by: "OW",
-              // Keep the original user message
-              message: userMessage.message,
-            };
-            updateMessageContainer();
-          }
-        };
+          oldMessages.push({
+            by: "MA", // Maya
+            message: streamMessage,
+          });
+
+          updateMessageContainer();
+        }, 5000);
+
+        inputText = streamMessage;
+        updateMessageContainer();
       } catch (error) {
         console.log(error);
       }
@@ -743,7 +799,8 @@
 
     function updateMessageContainer() {
       messageContainer.innerHTML = "";
-      oldMessages.forEach((message) => {
+      console.log("updateMessageContainer: " + JSON.stringify(oldMessages));
+      oldMessages?.forEach((message) => {
         const messageElement = document.createElement("div");
         messageElement.classList.add("message");
         messageElement.classList.add(
@@ -762,7 +819,8 @@
         if (message.by === "OW") {
           text.classList.add("message-text-right");
         }
-        text.innerText = truncateText(message.message, 10);
+        console.log("TEXT: " + JSON.stringify(message?.message));
+        text.innerText = truncateText(message?.message, 10);
         // message.message;
 
         messageElement.appendChild(img);
@@ -787,6 +845,7 @@
     }
 
     function startListening() {
+      localStorage.removeItem("mic");
       if (recognition) {
         recognition.start();
         isListening = true;
@@ -796,6 +855,7 @@
     }
 
     function stopListening() {
+      localStorage.removeItem("mic");
       if (recognition) {
         recognition.stop();
         isListening = false;
@@ -807,19 +867,28 @@
     function toggleMic() {
       if (isListening) {
         stopListening();
+        // messageInput.value.tri
+        sendMessage(messageInput.value).then(() => {
+          createStream().then(() => {
+            startSpeech();
+          });
+        });
       } else {
         startListening();
       }
     }
 
     const startSpeech = (welcomeText) => {
-      if (inputText !== "" && oldMessages[oldMessages.length - 1].by === "MY") {
+      if (
+        (inputText !== "" || messageInput.value !== "") &&
+        oldMessages[oldMessages.length - 1].by === "MY"
+      ) {
         console.log("Stream from Update message");
         createStream().then(() => {
           startStream(inputText);
         });
       }
-      if (inputText !== "") {
+      if (inputText !== "" || messageInput.value !== "") {
         startStream(inputText);
         startTimer();
       }
@@ -839,7 +908,7 @@
       const SpeechRecognition =
         window.SpeechRecognition || window.webkitSpeechRecognition;
       recognition = new SpeechRecognition();
-      recognition.continuous = true;
+      recognition.continuous = false;
       recognition.interimResults = false;
       recognition.lang = "en-US";
 
@@ -858,7 +927,7 @@
           .map((result) => result.transcript)
           .join("");
 
-        messageInput.value = transcript;
+        messageInput.value = transcript !== "" && transcript;
 
         clearTimeout(pauseTimeoutRef);
         pauseTimeoutRef = setTimeout(() => {
@@ -890,24 +959,26 @@
     });
 
     startListeningBtn.addEventListener("click", toggleMic);
-    widgetContainer.addEventListener("click", handlePreview);
 
     // Checking if mic was on before and start listening
     if (localStorage.getItem("mic") === "on") {
       startListening();
     }
 
-    handlePreview();
+    localStorage.removeItem("mic");
+    getMessages();
     initialSetup();
 
     // Event listeners for opening and closing modal
     openModalButton.addEventListener("click", () => {
       // Create the stream and start the timer
       widgetContainer.style.display = "block";
+      openModalButton.classList.add("hidden");
     });
 
     closeBtn.addEventListener("click", () => {
       widgetContainer.style.display = "none";
+      openModalButton.classList.remove("hidden");
     });
   });
 })();
