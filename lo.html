@@ -7,14 +7,167 @@
     <title>Example Website</title>
   </head>
 
+  <style>
+    * {
+      padding: 0;
+      margin: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #909590;
+    }
+
+    .container {
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 20px 10px;
+    }
+
+    .container h1 {
+      text-align: center;
+      margin-bottom: 20px !important;
+      font-size: 40px;
+      font-weight: 700;
+      color: #22223B;
+      margin-bottom: 20px;
+    }
+
+    .card-container {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-top: 10px;
+      gap: 30px;
+    }
+
+    .card {
+      background: #22223B;
+      border-radius: 8px;
+      padding: 20px;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+      width: 300px;
+      color: #ccc;
+    }
+
+    .card:hover {
+      transform: scale(1.05);
+      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+    }
+
+    .email {
+      display: block;
+      font-size: 14px;
+      color: #9046CF;
+      margin-bottom: 10px;
+    }
+
+    .name {
+      font-size: 24px;
+      margin-bottom: 10px;
+    }
+
+    .post {
+      font-size: 12px;
+      text-align: start;
+    }
+
+    .paginate {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin-top: 40px;
+    }
+
+    .prev,
+    .next {
+      background-color: #9046CF;
+      color: #fff;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 4px;
+      cursor: pointer;
+      margin: 0 10px;
+      transition: background-color 0.3s ease;
+    }
+
+    .prev:hover,
+    .next:hover {
+      background-color: #8614ea;
+    }
+
+    .page {
+      font-size: 16px;
+      font-weight: 600;
+      color: #22223B;
+    }
+  </style>
+
   <body>
+
+    <div class="container">
+      <h1>Welcome to Example Website!</h1>
+      <div class="card-container">
+        <div class="card">
+          <span class="email">VincentCode0@gmail.com</span>
+          <h4 class="name">VinJex</h4>
+          <p class="post">Lorem ipsum dolor sit, amet consectetur adipisicing elit. Facere accusamus adipisci eius
+            soluta
+            reiciendis modi numquam quibusdam corporis voluptas omnis? Expedita illo magnam obcaecati fugiat modi sed
+            cupiditate. Aut, minima?</p>
+        </div>
+        <div class="card">
+          <span class="email">VincentCode0@gmail.com</span>
+          <h4 class="name">VinJex</h4>
+          <p class="post">Lorem ipsum dolor sit, amet consectetur adipisicing elit. Facere accusamus adipisci eius
+            soluta
+            reiciendis modi numquam quibusdam corporis voluptas omnis? Expedita illo magnam obcaecati fugiat modi sed
+            cupiditate. Aut, minima?</p>
+        </div>
+        <div class="card">
+          <span class="email">VincentCode0@gmail.com</span>
+          <h4 class="name">VinJex</h4>
+          <p class="post">Lorem ipsum dolor sit, amet consectetur adipisicing elit. Facere accusamus adipisci eius
+            soluta
+            reiciendis modi numquam quibusdam corporis voluptas omnis? Expedita illo magnam obcaecati fugiat modi sed
+            cupiditate. Aut, minima?</p>
+        </div>
+        <div class="card">
+          <span class="email">VincentCode0@gmail.com</span>
+          <h4 class="name">VinJex</h4>
+          <p class="post">Lorem ipsum dolor sit, amet consectetur adipisicing elit. Facere accusamus adipisci eius
+            soluta
+            reiciendis modi numquam quibusdam corporis voluptas omnis? Expedita illo magnam obcaecati fugiat modi sed
+            cupiditate. Aut, minima?</p>
+        </div>
+        <div class="card">
+          <span class="email">VincentCode0@gmail.com</span>
+          <h4 class="name">VinJex</h4>
+          <p class="post">Lorem ipsum dolor sit, amet consectetur adipisicing elit. Facere accusamus adipisci eius
+            soluta
+            reiciendis modi numquam quibusdam corporis voluptas omnis? Expedita illo magnam obcaecati fugiat modi sed
+            cupiditate. Aut, minima?</p>
+        </div>
+      </div>
+
+      <div class="paginate">
+        <button type="button" class="prev">Prev</button>
+        <span class="page">Page 1 of 10</span>
+        <button type="button" class="next">Next</button>
+      </div>
+    </div>
+
     <!-- Include Your Widget Script -->
     <script>
+
       document.addEventListener("DOMContentLoaded", function () {
-        localStorage.setItem("data", JSON.stringify({ token: "ba63d7ca9850048459d47397b29cfd05ada016e7", bucket: 9 }));
-      });
+        localStorage.setItem("data", JSON.stringify({ token: "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6InJhZ25lc2lyZGVAZ3VmdW0uY29tIiwiZnVsbF9uYW1lIjoiVmluIEpleCIsImlhdCI6MTcyMjQ5NDIzOCwiZXhwIjoxNzQwMTE0MzMzMTg5LCJhdWQiOiJ1cm46bWF5YS1haS1zYWxlcy1jbGllbnRzLmNvbSIsImlzcyI6InVybjptYXlhLWFpLXNhbGVzLmNvbSIsInN1YiI6IjE4In0.nn53lQvvZTr4cF_4kByPuctD-PMRoshWq4WpTdhRM71H2Olf0ioQAoDsDdNuLrrwVBno-vhH789k4fCMqos6-nKuUefuVLVLeurp0nq3dELNTpfYJrb1BjLNpwDqVvfQYLQ3P8wa0ik267PffGjV3L5_TzPqgcBg7FpZ0leXnSwSAbPM_OqsbuTRuGv4OYS-_8IPKywjizNIlpVzhW2BNGCEmKrctxJQxKMvoZWkhNp9MIcKCTG-Jf8chFriUG1P7zqI_jG-FetsZNaqejeZanXaW_XFOR8LKxpt6CN5RX1C0HK7qG12ARkfc4oIkcyZy5TWf-e5FZTu552_WCr2Gg", bucket: "13" }))
+      })
     </script>
-    <script src="https://vin-jex.github.io/maya-script/maya.js"></script>
+    <script src="maya.js"></script>
+
   </body>
 
 </html>
