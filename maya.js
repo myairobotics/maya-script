@@ -251,7 +251,7 @@
               </div>
             </div>
             <div class="modal-footer">
-              <ion-icon name="mic" class="footer-icon" id="startListeningBtn"></ion-icon>
+              <ion-icon name="mic-off" class="footer-icon" id="startListeningBtn"></ion-icon>
               <input type="text" name="message" class="footer-input" id="messageInput" placeholder="Aa">
               <ion-icon name="send" class="footer-icon" id="sendBtn"></ion-icon>
             </div>
@@ -317,7 +317,7 @@
     const mayaImg = "https://app.myaisells.com/assets/mayaframe.png";
 
     const token = JSON.parse(localStorage.getItem("data"))?.token;
-    const token2 = "mLF8*\$4LwRfEzDYyDi!_0w";
+    const token2 = "mLF8*$4LwRfEzDYyDi!_0w";
     const bucket = JSON.parse(localStorage.getItem("data"))?.bucket;
 
     function onVideoStatusChange(videoIsPlaying, stream) {
@@ -737,20 +737,18 @@
         updateMessageContainer();
 
         const payload = chat_id ? { input: msg, chat_id } : { input: msg };
+        let response, data, streamMessage;
 
-        const response = await fetch(
-          `${url}/ai/buckets/${bucket}/conversations`,
-          {
-            method: "POST",
-            headers: {
-              Authorization: `Bearer ${token2}`,
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify(payload),
-          }
-        );
+        response = await fetch(`${url}/ai/buckets/${bucket}/conversations`, {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token2}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(payload),
+        });
 
-        let data;
+        
         const contentType = response.headers.get("Content-Type");
 
         if (contentType && contentType.includes("application/json")) {
@@ -759,7 +757,7 @@
           // Handle non-JSON response (e.g., plain text)
           data = await response.text();
         }
-        const streamMessage = combineStreamingMessages(data);
+        streamMessage = combineStreamingMessages(data);
 
         let mic = localStorage.getItem("mic");
 
@@ -819,13 +817,17 @@
           text.classList.add("message-text-right");
         }
         console.log("TEXT: " + JSON.stringify(message?.message));
+
         text.innerText = truncateText(message?.message, 10);
         // message.message;
 
         messageElement.appendChild(img);
+
         messageElement.appendChild(text);
 
-        messageContainer.appendChild(messageElement);
+        text.innerText.trim() !== ""
+          ? messageContainer.appendChild(messageElement)
+          : "";
       });
 
       // Automatically scroll to bottom
@@ -848,7 +850,7 @@
       if (recognition) {
         recognition.start();
         isListening = true;
-        startListeningBtn.setAttribute("name", "mic-off");
+        startListeningBtn.setAttribute("name", "mic");
         localStorage.setItem("mic", "on");
       }
     }
@@ -858,7 +860,7 @@
       if (recognition) {
         recognition.stop();
         isListening = false;
-        startListeningBtn.setAttribute("name", "mic");
+        startListeningBtn.setAttribute("name", "mic-off");
         localStorage.setItem("mic", "off");
       }
     }
@@ -913,11 +915,11 @@
 
       recognition.onstart = () => {
         isListening = true;
-        startListeningBtn.setAttribute("name", "mic-off");
+        startListeningBtn.setAttribute("name", "mic");
       };
       recognition.onend = () => {
         isListening = false;
-        startListeningBtn.setAttribute("name", "mic");
+        startListeningBtn.setAttribute("name", "mic-off");
       };
 
       recognition.onresult = (event) => {
