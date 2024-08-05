@@ -748,7 +748,6 @@
           body: JSON.stringify(payload),
         });
 
-        
         const contentType = response.headers.get("Content-Type");
 
         if (contentType && contentType.includes("application/json")) {
@@ -763,6 +762,8 @@
 
         if (mic === "on") {
           startListening();
+        } else {
+          stopListening();
         }
 
         setTimeout(() => {
@@ -866,7 +867,7 @@
     }
 
     function toggleMic() {
-      if (isListening) {
+      if (isListening && localStorage.getItem("mic") == "on") {
         stopListening();
         // messageInput.value.tri
         sendMessage(messageInput.value).then(() => {
@@ -934,9 +935,13 @@
         pauseTimeoutRef = setTimeout(() => {
           recognition.stop();
           if (transcript.trim()) {
-            sendMessage(transcript.trim());
+            sendMessage(transcript.trim()).then(() => {
+              createStream().then(() => {
+                startSpeech();
+              });
+            });
           }
-        }, 200);
+        }, 20);
       };
     }
 
@@ -961,10 +966,10 @@
 
     startListeningBtn.addEventListener("click", toggleMic);
 
-    // Checking if mic was on before and start listening
-    if (localStorage.getItem("mic") === "on") {
-      startListening();
-    }
+    // // Checking if mic was on before and start listening
+    // if (localStorage.getItem("mic") === "on") {
+    //   startListening();
+    // }
 
     localStorage.removeItem("mic");
     getMessages();
