@@ -63,7 +63,7 @@
       .modal-content {
         position: relative;
         overflow-y: auto;
-        height: 470px;
+        height: 72%;
         width: 400px;
         display: flex;
         flex-direction: column;
@@ -132,7 +132,7 @@
       }
 
       .modal-image {
-        height: 15rem;
+        height: auto;
         position: static;
       }
 
@@ -141,7 +141,7 @@
         height: 100%;
         object-fit: cover;
         object-position: right top;
-        border-radius: 0.5rem;
+        border-radius: 1.5rem;
       }
 
       .modal-messages {
@@ -211,6 +211,54 @@
         font-size: 0.875rem;
         color: var(--color-secondary);
       }
+        @keyframes pulse {
+        0% {
+          transform: scale(1);
+          opacity: 1;
+        }
+        50% {
+          transform: scale(1.1);
+          opacity: 0.7;
+        }
+        100% {
+          transform: scale(1);
+          opacity: 1;
+        }
+      }
+      .mic-active {
+          color: #22c55e;
+          animation: pulse 1.5s ease infinite;
+      }
+      .spinner {
+        border: 2px solid var(--color-gray);
+        border-top: 2px solid var(--color-blue);
+        border-radius: 50%;
+        width: 20px;
+        height: 20px;
+        animation: spin 1s linear infinite;
+        display: none;
+      }
+
+      @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+      }
+      .modal-messages::-webkit-scrollbar {
+        display: none;
+      }
+
+      .modal-messages {
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+      }
+      .modal-content::-webkit-scrollbar {
+        display: none;
+      }
+
+      .modal-content {
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+      }
     </style>
     <div id="app" class="p-4">
       <button class="btnOpen hidden" id="open-modal">
@@ -240,7 +288,7 @@
                 ></video>
                 <img
                   id='placeholderImage'
-                  class='w-full h-full rounded-lg modal-video body-img'
+                  class='w-full h-full object-cover modal-video body-img'
                   src='https://app.myaisells.com/assets/mayaframe.png'
                   alt='Video Placeholder'
                   style='display: none;'
@@ -250,9 +298,13 @@
                 <!-- Messages will be dynamically added here -->
               </div>
             </div>
+            <p id="output"></p>
             <div class="modal-footer">
-              <ion-icon name="mic-off" class="footer-icon" id="startListeningBtn"></ion-icon>
+            <button id="startListeningBtn">
+            <i id="micIcon"  class="fa-solid fa-microphone-lines-slash footer-icon text-2xl "></i>
+            </button>
               <input type="text" name="message" class="footer-input" id="messageInput" placeholder="Aa">
+                <div id="spinner" class="spinner"></div>
               <ion-icon name="send" class="footer-icon" id="sendBtn"></ion-icon>
             </div>
           </div>
@@ -271,7 +323,11 @@
   scriptModule.src =
     "https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.esm.js";
   document.body.appendChild(scriptModule);
-
+  const faCdn = document.createElement("link");
+  faCdn.rel = "stylesheet";
+  faCdn.href =
+    "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css";
+  document.head.appendChild(faCdn);
   var scriptNoModule = document.createElement("script");
   scriptNoModule.noModule = true;
   scriptNoModule.src =
@@ -293,6 +349,8 @@
     const messageContainer = document.getElementById("messageContainer");
     const streamVideoElement = document.getElementById("videoPlayer");
     const placeholderImage = document.getElementById("placeholderImage");
+    const outputDiv = document.getElementById("output");
+    const spinner = document.getElementById("spinner");
 
     let inputText = "";
     let streamId = null;
@@ -319,85 +377,52 @@
     const token = JSON.parse(localStorage.getItem("data"))?.token;
     const token2 = "mLF8*$4LwRfEzDYyDi!_0w";
     const bucket = JSON.parse(localStorage.getItem("data"))?.bucket;
+    const micIcon = document.getElementById("micIcon");
 
-    function onVideoStatusChange(videoIsPlaying, stream) {
-      console.log(
-        "StreamVideoElement from on video status change ",
-        streamVideoElement.srcObject
-      );
+    //initializing speech recognition
+    if ("webkitSpeechRecognition" in window) {
+      const recognition = new webkitSpeechRecognition();
+      recognition.continuous = false;
+      recognition.interimResults = true;
+      recognition.lang = "en-US";
 
-      if (videoIsPlaying) {
-        streamVideoOpacity = 1;
-        videoStream = stream;
-        streamVideoElement.style.opacity = streamVideoOpacity;
-        placeholderImage.style.display = "none";
-        streamVideoElement.style.display = "block";
+      recognition.onstart = () => {
+        isListening = true;
+        micIcon.classList.remove("fa-microphone-lines-slash");
+        micIcon.classList.add("fa-microphone-lines", "mic-active");
+      };
 
-        if (streamVideoElement.srcObject !== stream) {
-          streamVideoElement.srcObject = stream;
+      recognition.onend = () => {
+        isListening = false;
+        micIcon.classList.remove("fa-microphone-lines", "mic-active");
+        micIcon.classList.add("fa-microphone-lines-slash");
+      };
+
+      recognition.onresult = (event) => {
+        let interimTranscript = "";
+        let finalTranscript = "";
+
+        for (let i = event.resultIndex; i < event.results.length; i++) {
+          const transcript = event.results[i][0].transcript;
+          if (event.results[i].isFinal) {
+            finalTranscript += transcript + " ";
+          } else {
+            interimTranscript += transcript;
+          }
         }
-        streamVideoElement.play();
-      } else {
-        streamVideoOpacity = 0;
-        streamVideoElement.style.opacity = streamVideoOpacity;
-        placeholderImage.style.display = "block";
-        streamVideoElement.style.display = "none";
 
-        if (streamVideoElement.srcObject) {
-          streamVideoElement.srcObject.getTracks().forEach((track) => {
-            track.stop();
-          });
-          streamVideoElement.srcObject = null;
+        messageInput.value = `${interimTranscript} ${finalTranscript}`;
+        if (finalTranscript && finalTranscript !== " ") {
+          sendBtn.click();
         }
-      }
-    }
-
-    // Function to create a new stream
-    async function createStream() {
-      try {
-        const response = await fetch("https://api.d-id.com/talks/streams", {
-          method: "POST",
-          headers: {
-            Authorization: `Basic ${DID_API_KEY}`,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            source_url: mayaImg,
-          }),
-        });
-        const data = await response.json();
-        streamId = data.id;
-        sessionId = data.session_id;
-        offer = new RTCSessionDescription(data.offer);
-        iceServers = data.ice_servers;
-
-        createPeerConnection();
-      } catch (error) {
-        console.error("Error creating stream:", error);
-      }
-    }
-
-    // Function to send answer to the remote peer
-    async function sendAnswer(answer) {
-      try {
-        if (!sessionId) {
-          console.warn("No valid session ID found. Cannot send answer.");
-          return;
+      };
+      startListeningBtn.addEventListener("click", () => {
+        if (recognition.start) {
+          recognition.start();
         }
-        await fetch(`https://api.d-id.com/talks/streams/${streamId}/sdp`, {
-          method: "POST",
-          headers: {
-            Authorization: `Basic ${DID_API_KEY}`,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            answer: answer,
-            session_id: sessionId,
-          }),
-        });
-      } catch (error) {
-        console.error("Error sending answer:", error);
-      }
+      });
+    } else {
+      outputDiv.textContent = "Web Speech API not supported in this browser.";
     }
 
     // Initial UI setup
@@ -411,186 +436,6 @@
         placeholderImage.style.display = "block";
       }
     };
-
-    const handleTrackEvent = (event) => {
-      if (!event.track) return;
-      let lastBytesReceived;
-      setInterval(async () => {
-        let stats;
-        try {
-          stats = await peerConnection?.getStats(event.track);
-        } catch (error) {
-          stats = undefined;
-        }
-        if (stats === undefined) {
-          return;
-        }
-        stats.forEach((report) => {
-          if (report.type === "inbound-rtp" && report.mediaType === "video") {
-            const videoStatusChanged = report.bytesReceived > lastBytesReceived;
-            if (videoStatusChanged) {
-              onVideoStatusChange(
-                report.bytesReceived > lastBytesReceived,
-                event.streams[0]
-              );
-            }
-            lastBytesReceived = report.bytesReceived;
-          }
-        });
-      }, 500);
-    };
-
-    // Function to create a peer connection
-    async function createPeerConnection() {
-      try {
-        if (!sessionId) {
-          console.warn(
-            "No valid session ID found. Cannot create peer connection."
-          );
-          return;
-        }
-
-        if (offer !== null && iceServers !== null) {
-          peerConnection = new RTCPeerConnection({ iceServers });
-
-          peerConnection.onicecandidate = handleIceCandidate;
-          console.log("Peer Connection: " + peerConnection);
-          peerConnection.ontrack = handleTrackEvent;
-
-          await peerConnection.setRemoteDescription(offer);
-          const answer = await peerConnection.createAnswer();
-          await peerConnection.setLocalDescription(answer);
-
-          await sendAnswer(answer);
-
-          console.log("createPeerConnection function");
-        }
-      } catch (error) {
-        console.error("Error creating peer connection:", error);
-      }
-    }
-
-    // Function to handle ICE candidates
-    async function handleIceCandidate(event) {
-      try {
-        if (!sessionId) {
-          console.warn(
-            "No valid session ID found. Cannot handle ICE candidate."
-          );
-          return;
-        }
-        if (event.candidate) {
-          const response = await fetch(
-            `https://api.d-id.com/talks/streams/${streamId}/ice`,
-            {
-              method: "POST",
-              headers: {
-                Authorization: `Basic ${DID_API_KEY}`,
-                "Content-Type": "application/json",
-              },
-              body: JSON.stringify({
-                candidate: event.candidate.candidate,
-                sdpMid: event.candidate.sdpMid,
-                sdpMLineIndex: event.candidate.sdpMLineIndex,
-                session_id: sessionId,
-              }),
-            }
-          );
-          if (!response.ok) {
-            throw new Error(
-              `Failed to send ICE candidate: ${response.statusText}`
-            );
-          }
-        }
-      } catch (error) {
-        console.error("Error handling ICE candidate:", error);
-      }
-    }
-
-    // Function to start the stream with the given message
-    async function startStream(message) {
-      try {
-        if (sessionId === null) {
-          console.warn("No valid session ID found. Cannot start stream.");
-          return;
-        }
-
-        await fetch(`https://api.d-id.com/talks/streams/${streamId}`, {
-          method: "POST",
-          headers: {
-            Authorization: `Basic ${DID_API_KEY}`,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            script: {
-              type: "text",
-              input: message,
-              provider: {
-                type: "microsoft",
-                voice_id: "en-US-JennyNeural",
-              },
-              pad_audio: 0.5,
-            },
-            config: {
-              stitch: true,
-            },
-            session_id: sessionId,
-          }),
-        });
-        previousInputText = inputText;
-      } catch (error) {
-        console.error("Error starting stream:", error);
-      }
-    }
-
-    // Function to send a reminder message
-    function sendReminder() {
-      if (inputText === previousInputText && reminderCount < 3) {
-        startStream("Hey, are you still active?");
-        reminderCount += 1;
-      }
-    }
-
-    // Function to send session expired alert
-    function sendSessionExpiredAlert() {
-      startStream("Session expired. Please refresh to continue.");
-      sessionExpired = true;
-    }
-
-    // Function to start or restart the timer
-    function startTimer() {
-      if (timerRef) {
-        clearTimeout(timerRef);
-      }
-      let elapsedTime = 0;
-      const timerCallback = () => {
-        elapsedTime += 1;
-        if (elapsedTime === 120) {
-          if (inputText === previousInputText) {
-            sendReminder();
-          }
-        }
-        if (elapsedTime === 170) {
-          sendSessionExpiredAlert();
-          return;
-        }
-        timerRef = setTimeout(timerCallback, 1000);
-      };
-      timerRef = setTimeout(timerCallback, 1000);
-    }
-
-    // Start or restart the stream based on inputText changes
-    // if (inputText.trim()) {
-    //   startStream(inputText);
-    // }
-
-    // if (inputText !== previousInputText) {
-    //   createStream();
-    //   clearTimeout(timerRef);
-    //   reminderCount = 0;
-    //   sessionExpired = false;
-    //   startTimer();
-    // }
 
     // Cleanup function for peer connection and timers
     window.addEventListener("beforeunload", () => {
@@ -614,8 +459,8 @@
             },
           }
         );
-
         const data = await response.json();
+        console.log(data);
 
         chat_id = data.chat_id ? data.chat_id : null;
         oldMessages = data?.messages.reverse();
@@ -625,106 +470,10 @@
       }
     }
 
-    //   async function sendMessage(msg) {
-    //     try {
-    //       let userMessage = { by: "OW", message: msg };
-
-    //       // Clear input state
-    //       messageInput.value = "";
-
-    //       // Display user message immediately
-    //       oldMessages.length === 2 && oldMessages.shift();
-
-    //       oldMessages.push(userMessage);
-    //       updateMessageContainer();
-
-    //       const payload = chat_id
-    //         ? { input: msg, chat_id }
-    //         : { input: msg };
-
-    //       const response = await fetch(
-    //         `${url}/ai/buckets/${bucket}/conversations`,
-    //         {
-    //           method: "POST",
-    //           headers: {
-    //             Authorization: `Bearer ${token}`,
-    //             "Content-Type": "application/json",
-    //           },
-    //           body: JSON.stringify(payload),
-    //         }
-    //       );
-
-    //       const data = await response.json();
-    //       console.log("Data: ", data)
-
-    //       const eventSource = new EventSource(
-    //         `${url}/bucket/sse_customer/${data.id}/`
-    //       );
-
-    //       let streamMessage = "";
-    //       eventSource.onmessage = function (event) {
-    //         const msg = JSON.parse(event.data);
-
-    //         if (
-    //           msg.data === "BMASTEREXECFINISHED" ||
-    //           msg.data === "BMASTEREXECERROR"
-    //         ) {
-    //           eventSource.close();
-    //           let mic = localStorage.getItem("mic");
-    //           console.log(mic);
-    //           if (mic === "on") {
-    //             startListening();
-    //           }
-
-    //           setTimeout(() => {
-    //             // Update the last message in oldMessages with the received response
-    //             oldMessages.length === 2 && oldMessages.shift();
-
-    //             oldMessages.push({
-    //               by: "MA", // Maya
-    //               message: streamMessage,
-    //             });
-
-    //             updateMessageContainer();
-    //           }, 5000);
-
-    //           inputText = streamMessage;
-    //           updateMessageContainer();
-    //         } else {
-    //           streamMessage += msg.data;
-    //           oldMessages[oldMessages.length - 1] = {
-    //             by: "OW",
-    //             // Keep the original user message
-    //             message: userMessage.message,
-    //           };
-    //           updateMessageContainer();
-    //         }
-    //       };
-    //     } catch (error) {
-    //       console.log(error);
-    //     }
-    //   }
-
-    const combineStreamingMessages = (data) => {
-      // Split the raw string into individual JSON strings
-      const rawMessages = data.match(/(\{[^}]+\})/g);
-
-      if (!rawMessages) return "";
-
-      // Parse each JSON string into an object
-      const messages = rawMessages.map((message) => JSON.parse(message));
-
-      // Combine the content fields
-      const combinedMessage = messages.reduce(
-        (acc, msg) => acc + msg.content,
-        ""
-      );
-
-      return combinedMessage;
-    };
-
     async function sendMessage(msg) {
       try {
+        spinner.style.display = "inline-block";
+        sendBtn.style.display = "none";
         let userMessage = { by: "OW", message: msg };
 
         // Clear input state
@@ -736,8 +485,15 @@
         oldMessages.push(userMessage);
         updateMessageContainer();
 
-        const payload = chat_id ? { input: msg, chat_id } : { input: msg };
-        let response, data, streamMessage;
+        const payload = chat_id
+          ? {
+              input: msg,
+              chat_id: chat_id,
+              buffered: true,
+              include_media: true,
+            }
+          : { input: msg, buffered: true, include_media: true };
+        let response, data;
 
         response = await fetch(`${url}/ai/buckets/${bucket}/conversations`, {
           method: "POST",
@@ -756,32 +512,35 @@
           // Handle non-JSON response (e.g., plain text)
           data = await response.text();
         }
-        streamMessage = combineStreamingMessages(data);
+        console.log(data);
 
-        let mic = localStorage.getItem("mic");
+        // Update the last message in oldMessages with the received response
+        oldMessages.length === 2 && oldMessages.shift();
 
-        if (mic === "on") {
-          startListening();
-        } else {
-          stopListening();
-        }
+        oldMessages.push({
+          by: "MA", // Maya
+          message: data.content,
+        });
 
-        setTimeout(() => {
-          // Update the last message in oldMessages with the received response
-          oldMessages.length === 2 && oldMessages.shift();
-
-          oldMessages.push({
-            by: "MA", // Maya
-            message: streamMessage,
-          });
-
-          updateMessageContainer();
-        }, 5000);
-
-        inputText = streamMessage;
         updateMessageContainer();
+        if (data.media_url) {
+          placeholderImage.style.display = "none";
+
+          streamVideoElement.src = data.media_url;
+          streamVideoElement.style.display = "block";
+          streamVideoElement.oncanplay = () => {
+            streamVideoElement.play();
+          };
+          streamVideoElement.onended = () => {
+            streamVideoElement.style.display = "none";
+            placeholderImage.style.display = "block";
+          };
+        }
       } catch (error) {
         console.log(error);
+      } finally {
+        spinner.style.display = "none";
+        sendBtn.style.display = "inline-block";
       }
     }
 
@@ -796,8 +555,8 @@
     }
 
     function updateMessageContainer() {
-      messageContainer.innerHTML = "";
       console.log("updateMessageContainer: " + JSON.stringify(oldMessages));
+      messageContainer.innerHTML = "";
       oldMessages?.forEach((message) => {
         const messageElement = document.createElement("div");
         messageElement.classList.add("message");
@@ -846,132 +605,18 @@
       }
     }
 
-    function startListening() {
-      localStorage.removeItem("mic");
-      if (recognition) {
-        recognition.start();
-        isListening = true;
-        startListeningBtn.setAttribute("name", "mic");
-        localStorage.setItem("mic", "on");
-      }
-    }
-
-    function stopListening() {
-      localStorage.removeItem("mic");
-      if (recognition) {
-        recognition.stop();
-        isListening = false;
-        startListeningBtn.setAttribute("name", "mic-off");
-        localStorage.setItem("mic", "off");
-      }
-    }
-
-    function toggleMic() {
-      if (isListening && localStorage.getItem("mic") == "on") {
-        stopListening();
-        // messageInput.value.tri
-        sendMessage(messageInput.value).then(() => {
-          createStream().then(() => {
-            startSpeech();
-          });
-        });
-      } else {
-        startListening();
-      }
-    }
-
-    const startSpeech = (welcomeText) => {
-      if (
-        (inputText !== "" || messageInput.value !== "") &&
-        oldMessages[oldMessages.length - 1].by === "MY"
-      ) {
-        console.log("Stream from Update message");
-        createStream().then(() => {
-          startStream(inputText);
-        });
-      }
-      if (inputText !== "" || messageInput.value !== "") {
-        startStream(inputText);
-        startTimer();
-      }
-    };
-
     messageInput.addEventListener("keypress", function (e) {
       if (e.key === "Enter") {
-        sendMessage(messageInput.value).then(() => {
-          createStream().then(() => {
-            startSpeech();
-          });
-        });
+        sendMessage(messageInput.value);
       }
     });
-
-    if (window.SpeechRecognition || window.webkitSpeechRecognition) {
-      const SpeechRecognition =
-        window.SpeechRecognition || window.webkitSpeechRecognition;
-      recognition = new SpeechRecognition();
-      recognition.continuous = false;
-      recognition.interimResults = false;
-      recognition.lang = "en-US";
-
-      recognition.onstart = () => {
-        isListening = true;
-        startListeningBtn.setAttribute("name", "mic");
-      };
-      recognition.onend = () => {
-        isListening = false;
-        startListeningBtn.setAttribute("name", "mic-off");
-      };
-
-      recognition.onresult = (event) => {
-        const transcript = Array.from(event.results)
-          .map((result) => result[0])
-          .map((result) => result.transcript)
-          .join("");
-
-        messageInput.value = transcript !== "" && transcript;
-
-        clearTimeout(pauseTimeoutRef);
-        pauseTimeoutRef = setTimeout(() => {
-          recognition.stop();
-          if (transcript.trim()) {
-            sendMessage(transcript.trim()).then(() => {
-              createStream().then(() => {
-                startSpeech();
-              });
-            });
-          }
-        }, 20);
-      };
-    }
-
-    // (function () {
-    //   handlePreview();
-    //   startStream();
-    //   createStream().then(() => {
-    //     startStream("Hello there!");
-    //     startTimer();
-    //   });
-    // })();
 
     openModalButton.addEventListener("click", handlePreview);
     closeBtn.addEventListener("click", handlePreview);
     sendBtn.addEventListener("click", function () {
-      sendMessage(messageInput.value).then(() => {
-        createStream().then(() => {
-          startSpeech();
-        });
-      });
+      sendMessage(messageInput.value);
     });
 
-    startListeningBtn.addEventListener("click", toggleMic);
-
-    // // Checking if mic was on before and start listening
-    // if (localStorage.getItem("mic") === "on") {
-    //   startListening();
-    // }
-
-    localStorage.removeItem("mic");
     getMessages();
     initialSetup();
 
