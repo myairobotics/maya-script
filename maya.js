@@ -63,15 +63,14 @@
       .modal-content {
         position: relative;
         overflow-y: auto;
-        height: 72%;
+        height: fit-content;
         width: 400px;
         display: flex;
         flex-direction: column;
         position: absolute;
         bottom: 1rem;
         right: 1rem;
-        background-color: var(--color-white);
-        box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.4), 0 4px 6px -4px rgb(0 0 0 / 0.5);
+        background-color: transparent;
         overflow: hidden;
         border-radius: 1rem;
       }
@@ -80,6 +79,7 @@
         padding: 0.45rem .8rem;
         background-color: var(--color-white);
         display: flex;
+        border-radius:15px;
         align-items: center;
         justify-content: space-between;
         box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
@@ -141,6 +141,13 @@
         height: 100%;
         object-fit: cover;
         object-position: right top;
+        border-radius: 1rem;
+      }
+       .body-img-vid {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        object-position: right top;
         border-radius: 1.5rem;
       }
 
@@ -149,7 +156,10 @@
         padding: 1rem;
         display: flex;
         flex-direction: column;
+        background-color: #fff;
         gap: 1rem;
+        border-top-left-radius:1rem;
+        border-top-right-radius:1rem;
       }
 
       .message {
@@ -194,6 +204,7 @@
         border-top: 0.125rem solid var(--color-gray);
         height: fit-content;
         margin-top: auto;
+        background-color:#fff;
       }
 
       .footer-icon {
@@ -282,14 +293,14 @@
               <div class="modal-image">
                 <video
                   id='videoPlayer'
-                  class='w-full h-full rounded-lg modal-video body-img'
+                  class='w-full h-full rounded-lg modal-video body-img-vid'
                   autoplay
                   playsinline
                 ></video>
                 <img
                   id='placeholderImage'
                   class='w-full h-full object-cover modal-video body-img'
-                  src='https://app.myaisells.com/assets/mayaframe.png'
+                  src='./BlackFemale.png'
                   alt='Video Placeholder'
                   style='display: none;'
                 />
