@@ -21,12 +21,10 @@
       }
 
       .btnOpen {
-        background: var(--color-blue);
-        color: var(--color-white);
         width: 60px;
+        background-color:transparent;
         height: 60px;
         border-radius: 50%;
-        padding: 1rem;
         display: flex;
         align-items: center;
         justify-content: center;
@@ -35,15 +33,10 @@
         right: 4rem;
         cursor: pointer;
         z-index: 10000;
-        box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
         text-align: center;
         line-height: 60px;
         font-size: 24px;
         transition: box-shadow 0.3s ease;
-      }
-
-      .btnOpen:hover {
-        box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.3);
       }
 
       .btnOpen img {
@@ -51,7 +44,9 @@
         height: 100%;
         object-fit: cover;
       }
-
+      .btnOpen img:hover {
+        filter: drop-shadow(2px 4px 8px rgba(0, 0, 0, 0.5));
+      }
       .hidden {
         display: none !important;
       }
@@ -273,7 +268,7 @@
     </style>
     <div id="app" class="p-4">
       <button class="btnOpen hidden" id="open-modal">
-        <img src="https://res.cloudinary.com/cctlf-org/image/upload/v1721161715/maya-icon_hnxje6.png" alt="Maya" />
+        <img id="mayaAvatar" alt="Maya" />
       </button>
     </div>
       <div class="modal-container">
@@ -643,4 +638,26 @@
       openModalButton.classList.remove("hidden");
     });
   });
+  async function fetchAvatar() {
+    const bucketId = JSON.parse(localStorage.getItem("data"))?.bucket;
+    try {
+      const response = await fetch(
+        `https://maya-node-ai-sales-backend.onrender.com/a/buckets/${bucketId}/avatar`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      const data = await response.json();
+      console.log("avatar", data.image);
+      const avatarUrl = data.image;
+      document.getElementById("mayaAvatar").src = avatarUrl;
+    } catch (error) {
+      console.error("Error fetching avatar:", error);
+    }
+  }
+
+  fetchAvatar();
 })();
