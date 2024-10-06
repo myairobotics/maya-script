@@ -265,9 +265,12 @@
         -ms-overflow-style: none;
         scrollbar-width: none;
       }
+      .modal-container{
+        display:none;
+      }
     </style>
     <div id="app" class="p-4">
-      <button class="btnOpen hidden" id="open-modal">
+      <button class="btnOpen" id="open-modal">
         <img id="mayaAvatar" alt="Maya" />
       </button>
     </div>
@@ -295,7 +298,6 @@
                 <img
                   id='placeholderImage'
                   class='w-full h-full object-cover modal-video body-img'
-                  src='./BlackFemale.png'
                   alt='Video Placeholder'
                   style='display: none;'
                 />
@@ -654,6 +656,7 @@
       console.log("avatar", data.image);
       const avatarUrl = data.image;
       document.getElementById("mayaAvatar").src = avatarUrl;
+      document.getElementById("placeholderImage").src = avatarUrl;
     } catch (error) {
       console.error("Error fetching avatar:", error);
     }
