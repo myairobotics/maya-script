@@ -72,12 +72,10 @@
 
       .modal-nav {
         padding: 0.45rem .8rem;
-        background-color: var(--color-white);
         display: flex;
         border-radius:15px;
         align-items: center;
-        justify-content: space-between;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        justify-content: space-evenly;
         height: fit-content;
       }
 
@@ -91,7 +89,6 @@
         width: 2rem;
         height: 2rem;
         object-fit: cover;
-        border: 0.125rem solid var(--color-blue);
         border-radius: 50%;
       }
 
@@ -101,7 +98,7 @@
         color: var(--color-dark);
         font-size: .8rem;
         font-family: 'Rubik', sans-serif;
-        font-weight: 500;
+        font-weight: 600;
       }
 
       .nav-status {
@@ -151,7 +148,6 @@
         padding: 1rem;
         display: flex;
         flex-direction: column;
-        background-color: #fff;
         gap: 1rem;
         border-top-left-radius:1rem;
         border-top-right-radius:1rem;
@@ -161,7 +157,8 @@
         display: flex;
         gap: 0.75rem;
         padding: 0.7rem;
-        border-radius: 1.5rem .4rem 1.5rem 0;
+        border-radius: 1.5rem;
+        align-items:flex-end;
       }
 
       .message-left {
@@ -196,10 +193,8 @@
         align-items: center;
         justify-content: center;
         gap: 1rem;
-        border-top: 0.125rem solid var(--color-gray);
         height: fit-content;
         margin-top: auto;
-        background-color:#fff;
       }
 
       .footer-icon {
@@ -239,7 +234,7 @@
         border: 2px solid var(--color-gray);
         border-top: 2px solid var(--color-blue);
         border-radius: 50%;
-        width: 20px;
+        width: 28px;
         height: 20px;
         animation: spin 1s linear infinite;
         display: none;
@@ -282,7 +277,6 @@
                 <img src="https://app.myaisells.com/assets/mayaframe.png" alt="Maya" class="nav-img">
                 <div class="nav-title">
                   Maya AI
-                  <span class="nav-status"></span>
                 </div>
               </div>
               <ion-icon name="close" id="closeBtn" class="nav-icon"></ion-icon>
@@ -480,7 +474,7 @@
 
     async function sendMessage(msg) {
       try {
-        spinner.style.display = "inline-block";
+        spinner.style.display = "block";
         sendBtn.style.display = "none";
         let userMessage = { by: "OW", message: msg };
 
@@ -644,7 +638,7 @@
     const bucketId = JSON.parse(localStorage.getItem("data"))?.bucket;
     try {
       const response = await fetch(
-        `https://maya-node-ai-sales-backend.onrender.com/a/buckets/${bucketId}/avatar`,
+        `https://maya-node-ai-sales-backend.onrender.com/a/buckets/24/avatar`,
         {
           method: "GET",
           headers: {
