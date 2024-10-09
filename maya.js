@@ -638,7 +638,7 @@
     const bucketId = JSON.parse(localStorage.getItem("data"))?.bucket;
     try {
       const response = await fetch(
-        `https://maya-node-ai-sales-backend.onrender.com/a/buckets/24/avatar`,
+        `https://maya-node-ai-sales-backend.onrender.com/a/buckets/${bucketId}/avatar`,
         {
           method: "GET",
           headers: {
