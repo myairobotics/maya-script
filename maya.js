@@ -125,6 +125,8 @@
 
       .modal-image {
         height: auto;
+        transform: scale(0.75);
+        transform-origin: center;
         position: static;
       }
 
@@ -263,6 +265,49 @@
       .modal-container{
         display:none;
       }
+     .shimmer {
+      position: relative;
+      display: none;
+      color: #666;
+      font-size: 14px;
+      font-family: system-ui, -apple-system, sans-serif;
+      overflow: hidden;
+      min-width: 200px;
+    }
+
+    .shimmer::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(
+        90deg,
+        transparent,
+        rgba(255, 255, 255, 0.1),
+        transparent
+      );
+      animation: shimmer 3s infinite linear;
+    }
+
+    .text-content {
+      opacity: 1;
+      transition: opacity 0.7s ease-in-out;
+    }
+
+    .text-content.fade {
+      opacity: 0;
+    }
+
+    @keyframes shimmer {
+      0% {
+        transform: translateX(0);
+      }
+      100% {
+        transform: translateX(200%);
+      }
+    }
     </style>
     <div id="app" class="p-4">
       <button class="btnOpen" id="open-modal">
@@ -274,7 +319,7 @@
           <div class="modal-content" onclick="event.stopPropagation();">
             <nav class="modal-nav">
               <div class="nav-left">
-                <img src="https://app.myaisells.com/assets/mayaframe.png" alt="Maya" class="nav-img">
+                <img id="navImage" alt="Maya" class="nav-img">
                 <div class="nav-title">
                   Maya AI
                 </div>
@@ -300,13 +345,14 @@
                 <!-- Messages will be dynamically added here -->
               </div>
             </div>
-            <p id="output"></p>
+ <div class="shimmer thinking-container">
+      <span class="text-content">Processing...</span>
+    </div>            <p id="output"></p>
             <div class="modal-footer">
             <button id="startListeningBtn">
             <i id="micIcon"  class="fa-solid fa-microphone-lines-slash footer-icon text-2xl "></i>
             </button>
               <input type="text" name="message" class="footer-input" id="messageInput" placeholder="Aa">
-                <div id="spinner" class="spinner"></div>
               <ion-icon name="send" class="footer-icon" id="sendBtn"></ion-icon>
             </div>
           </div>
@@ -352,7 +398,6 @@
     const streamVideoElement = document.getElementById("videoPlayer");
     const placeholderImage = document.getElementById("placeholderImage");
     const outputDiv = document.getElementById("output");
-    const spinner = document.getElementById("spinner");
 
     let inputText = "";
     let streamId = null;
@@ -373,7 +418,7 @@
     let pauseTimeoutRef = null;
     let chat_id;
     // const url = "https://mayaaibe.azurewebsites.net/api";
-    const url = "https://maya-node-ai-sales-backend.onrender.com/api/v1";
+    const url = "https://maya-node-ai-sales-backend.onrender.com/api/v2";
     const mayaImg = "https://app.myaisells.com/assets/mayaframe.png";
 
     const token = JSON.parse(localStorage.getItem("data"))?.token;
@@ -426,6 +471,29 @@
     } else {
       outputDiv.textContent = "Web Speech API not supported in this browser.";
     }
+    const messages = [
+      "Processing...",
+      "Analyzing...",
+      "Thinking...",
+      "Computing...",
+      "Generating response...",
+      "Almost there...",
+      "Processing request...",
+    ];
+
+    const textElement = document.querySelector(".text-content");
+    let currentIndex = 0;
+
+    function updateText() {
+      textElement.classList.add("fade");
+
+      setTimeout(() => {
+        currentIndex = (currentIndex + 1) % messages.length;
+        textElement.textContent = messages[currentIndex];
+        textElement.classList.remove("fade");
+      }, 700);
+    }
+    setInterval(updateText, 2000);
 
     // Initial UI setup
     const initialSetup = () => {
@@ -464,7 +532,7 @@
         const data = await response.json();
         console.log(data);
 
-        chat_id = data.chat_id ? data.chat_id : null;
+        chat_id = data.chat_id;
         oldMessages = data?.messages.reverse();
         updateMessageContainer();
       } catch (error) {
@@ -473,10 +541,11 @@
     }
 
     async function sendMessage(msg) {
+      const bucketId = JSON.parse(localStorage.getItem("data"))?.bucket;
+      const thinkingContainer = document.querySelector(".thinking-container");
       try {
-        spinner.style.display = "block";
-        sendBtn.style.display = "none";
         let userMessage = { by: "OW", message: msg };
+        thinkingContainer.style.display = "inline-block";
 
         // Clear input state
         messageInput.value = "";
@@ -487,24 +556,24 @@
         oldMessages.push(userMessage);
         updateMessageContainer();
 
-        const payload = chat_id
-          ? {
-              input: msg,
-              chat_id: chat_id,
-              buffered: true,
-              include_media: true,
-            }
-          : { input: msg, buffered: true, include_media: true };
+        const payload = {
+          input: msg,
+          chat_id: chat_id || 0,
+          include_media: true,
+        };
         let response, data;
 
-        response = await fetch(`${url}/ai/buckets/${bucket}/conversations`, {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${token2}`,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(payload),
-        });
+        response = await fetch(
+          `${url}/ai/buckets/${bucketId}/web/conversations`,
+          {
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${token2}`,
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(payload),
+          }
+        );
 
         const contentType = response.headers.get("Content-Type");
 
@@ -515,7 +584,8 @@
           data = await response.text();
         }
         console.log(data);
-
+        chat_id = data.chat_id;
+        thinkingContainer.style.display = "none";
         // Update the last message in oldMessages with the received response
         oldMessages.length === 2 && oldMessages.shift();
 
@@ -540,9 +610,6 @@
         }
       } catch (error) {
         console.log(error);
-      } finally {
-        spinner.style.display = "none";
-        sendBtn.style.display = "inline-block";
       }
     }
 
@@ -651,6 +718,7 @@
       const avatarUrl = data.image;
       document.getElementById("mayaAvatar").src = avatarUrl;
       document.getElementById("placeholderImage").src = avatarUrl;
+      document.getElementById("navImage").src = avatarUrl;
     } catch (error) {
       console.error("Error fetching avatar:", error);
     }
