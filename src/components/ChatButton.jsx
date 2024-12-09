@@ -21,14 +21,14 @@ const ChatButton = ({ avatar, onClick }) => {
       {showTooltip && (
         <div
           className="fixed bottom-40 right-28 transform translate-x-1/2 
-                     p-2 bg-black/10 border-[1.5px] border-white/30 
+                     p-2 bg-white/10 border-[1.5px] border-white/30 
                      text-white text-sm rounded-md whitespace-nowrap 
-                     z-[10000] backdrop-blur-sm "
-          // style={{
-          //   animation: "showHideTooltip 30s forwards",
-          // }}
+                     z-[10000] backdrop-blur-sm"
+          style={{
+            animation: "showHideTooltip 30s forwards",
+          }}
         >
-          Click here to chat with Maya!!
+          Click here to chat with Maya
         </div>
       )}
       <button
