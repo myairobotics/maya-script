@@ -1,4 +1,4 @@
-import { useCallback, useState, useRef, useMemo } from "react";
+import { useState, useRef, useMemo } from "react";
 import { MessagesContext } from "../contexts/messages.context";
 
 export default function MessagesContainer({ children }) {
@@ -8,6 +8,14 @@ export default function MessagesContainer({ children }) {
   const messagesRef = useRef([]);
 
   const messageList = useMemo(() => messagesRef.current, [messagesVersion]);
+
+  const remove = ({ id }) => {
+    const index = messagesRef.current.findIndex((m) => m.id === id);
+    if (index >= 0) {
+      messagesRef.current.splice(index, 1);
+      setMessagesVersion(messagesVersion + (1 % 4));
+    }
+  };
 
   const insertMessage = (message) => {
     messagesRef.current.push(message);
@@ -41,6 +49,7 @@ export default function MessagesContainer({ children }) {
         messages: messageList,
         clear: clearMessages,
         load: replaceMessages,
+        remove,
       }}
     >
       {children}

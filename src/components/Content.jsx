@@ -13,32 +13,32 @@ export default function WebChatContent({
   className,
 }) {
   const plugin = useWebClient({ bucket_id: bucketId, onLoad });
+  const [resumed, setResumed] = useState(false);
   const [connected, setConnected] = useState(false);
   const { avatar } = useContext(MayaAvatarContext);
+
   useEffect(() => {
-    if (plugin.connected) {
+    if (plugin.loaded) {
+      plugin.controller.suspend(); // Do not play immediately
+      plugin.connect({
+        sendGreeting: true,
+      });
       plugin.alwaysOpen().then((always) => {
         if (always) {
           onAutomaticallyOpen();
         }
       });
     }
-  }, [bucketId, plugin.connected]);
+  }, [plugin.loaded]);
 
   useEffect(() => {
-    if (!plugin.connected && open && !connected) {
-      plugin
-        .connect({
-          sendGreeting: true,
-        })
-        .then((okay) => {
-          setConnected(okay);
-        });
+    if (plugin.connected && open && plugin.controller?.isSuspended()) {
+      plugin.controller.resume();
     }
-    if (!open && connected && plugin.connected) {
-      plugin.controller?.cancel();
+    if (!open && !plugin.controller?.isSuspended() && plugin.connected) {
+      plugin.controller.cancel();
     }
-  }, [open, connected, plugin.connected]);
+  }, [open, plugin.connected, plugin.controller?.isSuspended()]);
 
   if (!plugin.connected) {
     return (

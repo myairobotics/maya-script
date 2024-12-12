@@ -7,4 +7,5 @@ export const MessagesContext = createContext({
   add: noop,
   clear: noop,
   update: noop,
+  remove: noop,
 });

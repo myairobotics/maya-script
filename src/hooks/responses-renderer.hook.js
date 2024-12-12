@@ -3,9 +3,11 @@ import { MessagesContext } from "../contexts/messages.context";
 import { PresentationContext } from "../contexts/presentation.context";
 import { FeedbackContext } from "../contexts/feedback.context";
 import { LoadingContext } from "../contexts/loading.context";
+import { isFunction } from "lodash";
 
 export function useRealtimeResponsesRenderer() {
-  const { add } = useContext(MessagesContext);
+  const { add: addMessage, remove: removeMessage } =
+    useContext(MessagesContext);
   const { controller } = useContext(PresentationContext);
   const { request: requestFeedback } = useContext(FeedbackContext);
   const { onLoad } = useContext(LoadingContext);
@@ -41,30 +43,47 @@ export function useRealtimeResponsesRenderer() {
   useEffect(() => {
     const subscriptions = [];
     if (controller) {
-      subscriptions.push(
-        controller.engaged().subscribe({
-          next: (value) => {
-            setStatus((prev) => ({ ...prev, controllerEngaged: value }));
+      if (isFunction(controller?.client?.done)) {
+        subscriptions?.push(
+          controller?.client?.done().subscribe({
+            next: () => {
+              setStatus((prev) => ({ ...prev, complete: true }));
+            },
+          })
+        );
+      }
+
+      subscriptions?.push(
+        controller?.stopping()?.subscribe({
+          next: ({ id }) => {
+            if (status.currentResponseId === id) {
+              stopCurrent();
+              setStatus((prev) => ({ ...prev, currentResponseId: null }));
+            }
           },
         })
       );
 
-      subscriptions.push(
-        controller.client.done().subscribe({
-          next: () => {
-            setStatus((prev) => ({ ...prev, complete: true }));
+      subscriptions?.push(
+        controller?.removing()?.subscribe({
+          next: ({ id }) => {
+            removeMessage({ id });
+            if (status?.currentResponseId === id) {
+              stopCurrent();
+              setStatus((prev) => ({ ...prev, currentResponseId: null }));
+            }
           },
         })
       );
 
-      subscriptions.push(
-        controller.messages().subscribe({
+      subscriptions?.push(
+        controller?.messages?.()?.subscribe({
           next: (message) => {
             if (message.type !== "message") {
               return;
             }
-            add(message);
-            if (message.by === "USER") {
+            addMessage(message);
+            if (message.by === "USER" || message.history_item) {
               // controller.notifyCompleted();
               return;
             }
@@ -73,11 +92,20 @@ export function useRealtimeResponsesRenderer() {
             }
 
             if (message.video_url) {
-              setStatus((prev) => ({ ...prev, present: true, playing: true }));
+              setStatus((prev) => ({
+                ...prev,
+                currentResponseId: message.id,
+                present: true,
+                playing: true,
+              }));
               createAndPlayVideo({
                 url: message.video_url,
                 onComplete: () => {
-                  setStatus((prev) => ({ ...prev, playing: false }));
+                  setStatus((prev) => ({
+                    ...prev,
+                    currentResponseId: null,
+                    playing: false,
+                  }));
                   if (message.isQuestion) {
                     requestFeedback();
                   }
@@ -87,8 +115,17 @@ export function useRealtimeResponsesRenderer() {
                 subscriptions,
               });
             } else {
+              setStatus((prev) => ({
+                ...prev,
+                currentResponseId: message.id,
+                playing: false,
+              }));
               setTimeout(() => {
-                setStatus((prev) => ({ ...prev, playing: false }));
+                setStatus((prev) => ({
+                  ...prev,
+                  currentResponseId: null,
+                  playing: false,
+                }));
                 if (message.isQuestion) {
                   requestFeedback();
                 }
@@ -100,7 +137,7 @@ export function useRealtimeResponsesRenderer() {
       );
     }
     return () => {
-      subscriptions.forEach((s) => s?.unsubscribe());
+      subscriptions.forEach((s) => s.unsubscribe());
     };
   }, [controller]);
 
@@ -115,7 +152,7 @@ export function useRealtimeResponsesRenderer() {
     stopCurrent();
     const el = document.createElement("video");
     el.src = url;
-    el.className += " rounded-3xl h-full";
+    el.classList.add("h-full");
     if (status.present) {
       el.classList.add("hidden");
     }
@@ -145,17 +182,17 @@ export function useRealtimeResponsesRenderer() {
 
     el.addEventListener("play", () => {
       if (oldEl) {
+        oldEl.classList.add("hidden");
         setTimeout(() => {
           containerRef.current.removeChild(oldEl);
         }, 1000);
       }
+      el.classList.remove("hidden");
     });
     videoRef.current = el;
     containerRef.current.appendChild(el);
     el.load();
-    if (oldEl) {
-      oldEl.classList.add("hidden");
-    }
+
     el.play();
     if (el.duration && serverResponse) {
       const given = el.duration + 0.3 * el.duration;
@@ -165,19 +202,6 @@ export function useRealtimeResponsesRenderer() {
         onComplete();
       }, given * 1000);
     }
-    el.classList.remove("hidden");
-    subscriptions.push(
-      controller.client.halted?.().subscribe({
-        next: () => {
-          if (!el.ended) {
-            el.pause();
-            if (serverResponse) {
-              setStatus((prev) => ({ ...prev, paused: true }));
-            }
-          }
-        },
-      })
-    );
   };
 
   return {
