@@ -31,45 +31,46 @@ const ChatButton = ({ avatar, onClick }) => {
         <div className="fixed bottom-40 max-w-sm right-14 z-[10000]">
           <div
             className={`
-              relative p-6
-              bg-white/30
-              backdrop-blur-md backdrop-saturate-150
-              border border-white/20
-              text-white
-              rounded-2xl
-              transform
-              transition-all duration-700 ease-in-out
-              ${
-                isAnimating
-                  ? "animate-bounce_gentle scale-100 opacity-100"
-                  : "scale-95 opacity-0"
-              }
-              before:content-['']
-              before:absolute
-              before:bottom-[-10px]
-              before:right-[40px]
-              before:w-5
-              before:h-5
-              before:bg-transparent
-              before:backdrop-blur-md
-              before:backdrop-saturate-150
-              before:rotate-45
-              before:border-r
-              before:border-b
-              before:border-white/20
-              shadow-xl
-              shadow-blue-500/20
-            `}
+            relative p-6
+            bg-white/30
+            backdrop-blur-md backdrop-saturate-150
+            border border-white/20
+            rounded-2xl
+            transform
+            transition-all duration-700 ease-in-out
+            ${
+              isAnimating
+                ? "animate-bounce_gentle scale-100 opacity-100"
+                : "scale-95 opacity-0"
+            }
+            before:content-['']
+            before:absolute
+            before:bottom-[-10px]
+            before:right-[40px]
+            before:w-5
+            before:h-5
+            before:bg-transparent
+            before:backdrop-blur-md
+            before:backdrop-saturate-150
+            before:rotate-45
+            before:border-r
+            before:border-b
+            before:border-white/20
+            shadow-xl
+            shadow-blue-500/20
+          `}
             onAnimationEnd={() => setIsAnimating(false)}
           >
             <div className="space-y-2">
-              <p className="font-semibold text-lg mix-blend-difference text-black">
-                Hey, I am Maya! 👋
-              </p>
-              <p className="text-sm  text-black/90 mix-blend-difference leading-relaxed font-medium">
-                Welcome to the site! Would you like me to guide you through?
-                Click on my icon below to start chatting!
-              </p>
+              <div className="bg-white/70 backdrop-blur-sm rounded-lg p-2">
+                <p className="font-semibold text-lg text-gray-900">
+                  Hey, I am Maya! 👋
+                </p>
+                <p className="text-sm text-gray-800 leading-relaxed font-medium">
+                  Welcome to the site! Would you like me to guide you through?
+                  Click on my icon below to start chatting!
+                </p>
+              </div>
             </div>
           </div>
         </div>
