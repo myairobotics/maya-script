@@ -5,6 +5,8 @@ module.exports = {
       animation: {
         pulse: "pulse 1.5s ease infinite",
         shimmer: "shimmer 3s infinite linear",
+        bounce_gentle: "bounce 2s infinite",
+        ping_slow: "ping 2s cubic-bezier(0, 0, 0.2, 1) infinite",
       },
       keyframes: {
         pulse: {
