@@ -6,7 +6,8 @@ import { isString, noop } from "lodash";
 
 const pluginVersion = process.env.REACT_APP_WEB_PLUGIN_VERSION || "1.0.12";
 
-const pluginVersionSuffix = process.env.NODE_ENV === "production" ? "" : "-dev";
+const pluginVersionSuffix =
+  process.env.REACT_APP_NODE_ENV === "production" ? "" : "-dev";
 
 export function useWebClient({ bucket_id, business_tag, onLoad }) {
   const [status, setStatus] = useState({

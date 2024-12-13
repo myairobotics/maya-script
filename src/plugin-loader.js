@@ -31,7 +31,7 @@ async function installClient({
     ...installationOptions,
     base_url: process.env.REACT_APP_BACKEND_NEW_URL,
     access_token: process.env.REACT_APP_IMAGE_UPLOAD_KEY,
-    logging: process.env.NODE_ENV !== "production",
+    logging: process.env.REACT_APP_NODE_ENV !== "production",
   });
 
   if (usesController) {
