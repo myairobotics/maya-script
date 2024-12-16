@@ -4,7 +4,7 @@ import { PresentationContext } from "../contexts/presentation.context";
 import { LoadingContext } from "../contexts/loading.context";
 import { isString, noop } from "lodash";
 
-const pluginVersion = process.env.REACT_APP_WEB_PLUGIN_VERSION || "1.0.12";
+const pluginVersion = process.env.REACT_APP_WEB_PLUGIN_VERSION;
 
 const pluginVersionSuffix =
   process.env.REACT_APP_NODE_ENV === "production" ? "" : "-dev";

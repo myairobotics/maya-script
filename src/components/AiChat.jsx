@@ -4,7 +4,7 @@ import { MayaAvatarContext } from "../contexts/avatar.context";
 
 const maxChars = 100;
 
-const AiChat = ({ text, aiResp = false, img }) => {
+const AiChat = ({ text, links, aiResp = false, img }) => {
   const [truncateSize, setTruncateSize] = useState(maxChars);
   const { avatar } = useContext(MayaAvatarContext);
 
@@ -47,16 +47,27 @@ const AiChat = ({ text, aiResp = false, img }) => {
       <div className="flex-1 relative flex justify-between items-center my-auto">
         <div className="text-start font-rubik">
           <div className={`info-container text-[#242426] text-sm font-normal`}>
-            {displayText}
-            {truncateSize > maxChars && !hasMore && (
-              <a href="#" className="ml-2" onClick={hideMore}>
-                Hide
-              </a>
-            )}
-            {hasMore && (
-              <a href="#" className="ml-2" onClick={showMore}>
-                More
-              </a>
+            <p>
+              {displayText}
+              {truncateSize > maxChars && !hasMore && (
+                <a href="#" className="ml-2" onClick={hideMore}>
+                  Hide
+                </a>
+              )}
+              {hasMore && (
+                <a href="#" className="ml-2" onClick={showMore}>
+                  More
+                </a>
+              )}
+            </p>
+            {links && links.length > 0 && (
+              <div>
+                {links.map((link, index) => (
+                  <a className="block mb-2" href={link.url} key={index}>
+                    {link.text}
+                  </a>
+                ))}
+              </div>
             )}
           </div>
         </div>

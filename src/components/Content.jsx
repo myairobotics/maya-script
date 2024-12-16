@@ -13,21 +13,23 @@ export default function WebChatContent({
   className,
 }) {
   const plugin = useWebClient({ bucket_id: bucketId, onLoad });
-  const [resumed, setResumed] = useState(false);
   const [connected, setConnected] = useState(false);
   const { avatar } = useContext(MayaAvatarContext);
 
   useEffect(() => {
     if (plugin.loaded) {
       plugin.controller.suspend(); // Do not play immediately
-      plugin.connect({
-        sendGreeting: true,
-      });
-      plugin.alwaysOpen().then((always) => {
-        if (always) {
-          onAutomaticallyOpen();
-        }
-      });
+      plugin
+        .connect({
+          sendGreeting: true,
+        })
+        .then(() => {
+          plugin.alwaysOpen().then((always) => {
+            if (always) {
+              onAutomaticallyOpen();
+            }
+          });
+        });
     }
   }, [plugin.loaded]);
 

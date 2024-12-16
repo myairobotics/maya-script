@@ -43,6 +43,7 @@ export function useRealtimeResponsesRenderer() {
   useEffect(() => {
     const subscriptions = [];
     if (controller) {
+      // controller or subscriptions cannot be null or undefined in this block.
       if (isFunction(controller?.client?.done)) {
         subscriptions?.push(
           controller?.client?.done().subscribe({
@@ -71,6 +72,22 @@ export function useRealtimeResponsesRenderer() {
             if (status?.currentResponseId === id) {
               stopCurrent();
               setStatus((prev) => ({ ...prev, currentResponseId: null }));
+            }
+          },
+        })
+      );
+
+      subscriptions.push(
+        controller.client.notifications().subscribe({
+          next: (event) => {
+            if (event.type === "select_link") {
+              addMessage({
+                type: "links",
+                by: "ASSISTANT",
+                text: "Select link",
+                id: `msg_${Date.now()}`,
+                links: event.data,
+              });
             }
           },
         })
