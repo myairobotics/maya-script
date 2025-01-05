@@ -28,10 +28,10 @@ const ChatButton = ({ avatar, onClick }) => {
   return (
     <div className="relative">
       {showTooltip && (
-        <div className="fixed bottom-40 max-w-sm right-14 z-[10000]">
+        <div className="fixed bottom-40 max-w-sm right-8 sm:right-14 z-[10000]">
           <div
             className={`
-            relative p-6
+            relative p-3 sm:p-6
             bg-white/30
             backdrop-blur-md backdrop-saturate-150
             border border-white/20
@@ -79,7 +79,7 @@ const ChatButton = ({ avatar, onClick }) => {
         onClick={handleClick}
         className={`
           w-20 h-20 rounded-full
-          fixed bottom-16 right-16
+          fixed bottom-16 right-10 sm:right-16
           cursor-pointer z-[10000]
           transition-all duration-500
           hover:scale-105

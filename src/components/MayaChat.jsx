@@ -9,7 +9,6 @@ import { IoClose } from "react-icons/io5";
 const MayaChat = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [bucketId, setBucketId] = useState(0);
-  const { messages, sendMessage } = useChat();
   const { avatar, setAvatar } = useContext(MayaAvatarContext);
   const [loaded, setLoaded] = useState(false);
 
@@ -45,12 +44,11 @@ const MayaChat = () => {
         <>
           <div
             className={`${
-              isOpen ? "fixed bottom-4 right-4 z-[10000]" : "hidden"
+              isOpen ? "fixed bottom-4  right-4 z-[10000]" : "hidden"
             } `}
           >
             <div
-              className="h-fit w-[400px] flex flex-col absolute bottom-4 right-4 
-           bg-transparent overflow-hidden rounded-2xl"
+              className="h-fit w-[350px] sm:w-[400px] flex flex-col  absolute bottom-4 right-0 sm:right-4  overflow-hidden rounded-2xl"
               onClick={(e) => e.stopPropagation()}
             >
               <nav className="p-[0.45rem_0.8rem] flex items-center justify-center rounded-[15px] h-fit">
